@@ -159,3 +159,21 @@
 ## v1
 
 Refer [here](https://github.com/actions/checkout/blob/v1/CHANGELOG.md) for the V1 changelog
+
+## v4.3.0
+* Add new input for "show-progress" with a default value of true
+* Add new input for "github-server-url" with a description and required set to false
+* Add new output for "ref" in the `run` function
+* Add new output for "commit" in the `run` function
+* Add new parameter for "show-progress" in the `getSource` function
+* Add new parameter for "github-server-url" in the `getSource` function
+* Add new parameter for "show-progress" in the `fetch` function
+* Add new parameter for "github-server-url" in the `fetch` function
+* Add new parameter for "github-server-url" in the `configureAuth` function
+* Add new parameter for "github-server-url" in the `configureGlobalAuth` function
+* Add new property for "show-progress" in the `IGitSourceSettings` interface
+* Add new property for "github-server-url" in the `IGitSourceSettings` interface
+* Add new function `getServerApiUrl` to return the API URL for the GitHub server
+* Add new function `isGhes` to check if the server is GitHub Enterprise Server
+* Add new parameter for "github-server-url" in the `downloadRepository` function
+* Add new parameter for "github-server-url" in the `getDefaultBranch` function
