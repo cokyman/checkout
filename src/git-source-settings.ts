@@ -57,7 +57,7 @@ export interface IGitSourceSettings {
   /**
    * Indicates whether to use the --progress option when fetching
    */
-  showProgress: boolean
+  showFetchProgress: boolean
 
   /**
    * Indicates whether to fetch LFS objects
@@ -116,16 +116,6 @@ export interface IGitSourceSettings {
 
   /**
    * User override on the GitHub Server/Host URL that hosts the repository to be cloned
-   */
-  githubServerUrl: string | undefined
-
-  /**
-   * Indicates whether to show progress status output when fetching
-   */
-  showProgress: boolean
-
-  /**
-   * The base URL for the GitHub instance that you are trying to clone from
    */
   githubServerUrl: string | undefined
 }
