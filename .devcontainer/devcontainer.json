@@ -1,0 +1,19 @@
+{
+  "tasks": {
+    "build": "npm install",
+    "test": " npm test",
+    "launch": "npm run"
+  },
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash",
+    "editor.formatOnSave": true,
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1000
+  },
+  "extensions": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-vscode.vscode-typescript-tslint-plugin"
+  ],
+  "postCreateCommand": "npm install && npm run build"
+}
