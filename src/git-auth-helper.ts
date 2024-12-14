@@ -16,8 +16,8 @@ const IS_WINDOWS = process.platform === 'win32'
 const SSH_COMMAND_KEY = 'core.sshCommand'
 
 export interface IGitAuthHelper {
-  configureAuth(): Promise<void>
-  configureGlobalAuth(): Promise<void>
+  configureAuth(githubServerUrl?: string): Promise<void>
+  configureGlobalAuth(githubServerUrl?: string): Promise<void>
   configureSubmoduleAuth(): Promise<void>
   configureTempGlobalConfig(): Promise<string>
   removeAuth(): Promise<void>
@@ -72,13 +72,13 @@ class GitAuthHelper {
     }
   }
 
-  async configureAuth(): Promise<void> {
+  async configureAuth(githubServerUrl?: string): Promise<void> {
     // Remove possible previous values
     await this.removeAuth()
 
     // Configure new values
     await this.configureSsh()
-    await this.configureToken()
+    await this.configureToken(githubServerUrl)
   }
 
   async configureTempGlobalConfig(): Promise<string> {
@@ -124,12 +124,12 @@ class GitAuthHelper {
     return newGitConfigPath
   }
 
-  async configureGlobalAuth(): Promise<void> {
+  async configureGlobalAuth(githubServerUrl?: string): Promise<void> {
     // 'configureTempGlobalConfig' noops if already set, just returns the path
     const newGitConfigPath = await this.configureTempGlobalConfig()
     try {
       // Configure the token
-      await this.configureToken(newGitConfigPath, true)
+      await this.configureToken(newGitConfigPath, true, githubServerUrl)
 
       // Configure HTTPS instead of SSH
       await this.git.tryConfigUnset(this.insteadOfKey, true)
@@ -189,8 +189,7 @@ class GitAuthHelper {
   }
 
   async removeAuth(): Promise<void> {
-    await this.removeSsh()
-    await this.removeToken()
+    await this.removeConfig()
   }
 
   async removeGlobalConfig(): Promise<void> {
@@ -274,7 +273,8 @@ class GitAuthHelper {
 
   private async configureToken(
     configPath?: string,
-    globalConfig?: boolean
+    globalConfig?: boolean,
+    githubServerUrl?: string
   ): Promise<void> {
     // Validate args
     assert.ok(
@@ -288,8 +288,8 @@ class GitAuthHelper {
     }
 
     // Configure a placeholder value. This approach avoids the credential being captured
-    // by process creation audit events, which are commonly logged. For more information,
-    // refer to https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/manage/component-updates/command-line-process-auditing
+      // by process creation audit events, which are commonly logged. For more information,
+      // refer to https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/manage/component-updates/command-line-process-auditing
     await this.git.config(
       this.tokenConfigKey,
       this.tokenPlaceholderConfigValue,
@@ -318,7 +318,7 @@ class GitAuthHelper {
     await fs.promises.writeFile(configPath, content)
   }
 
-  private async removeSsh(): Promise<void> {
+  private async removeConfig(): Promise<void> {
     // SSH key
     const keyPath = this.sshKeyPath || stateHelper.SshKeyPath
     if (keyPath) {
@@ -343,9 +343,7 @@ class GitAuthHelper {
 
     // SSH command
     await this.removeGitConfig(SSH_COMMAND_KEY)
-  }
 
-  private async removeToken(): Promise<void> {
     // HTTP extra header
     await this.removeGitConfig(this.tokenConfigKey)
   }
