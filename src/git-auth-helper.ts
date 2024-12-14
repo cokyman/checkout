@@ -189,8 +189,7 @@ class GitAuthHelper {
   }
 
   async removeAuth(): Promise<void> {
-    await this.removeSsh()
-    await this.removeToken()
+    await this.removeConfig()
   }
 
   async removeGlobalConfig(): Promise<void> {
@@ -319,7 +318,7 @@ class GitAuthHelper {
     await fs.promises.writeFile(configPath, content)
   }
 
-  private async removeSsh(): Promise<void> {
+  private async removeConfig(): Promise<void> {
     // SSH key
     const keyPath = this.sshKeyPath || stateHelper.SshKeyPath
     if (keyPath) {
@@ -344,9 +343,7 @@ class GitAuthHelper {
 
     // SSH command
     await this.removeGitConfig(SSH_COMMAND_KEY)
-  }
 
-  private async removeToken(): Promise<void> {
     // HTTP extra header
     await this.removeGitConfig(this.tokenConfigKey)
   }
