@@ -18,18 +18,18 @@ export async function downloadRepository(
   ref: string,
   commit: string,
   repositoryPath: string,
-  githubServerUrl?: string
+  baseUrl?: string
 ): Promise<void> {
   // Determine the default branch
   if (!ref && !commit) {
     core.info('Determining the default branch')
-    ref = await getDefaultBranch(authToken, owner, repo, githubServerUrl)
+    ref = await getDefaultBranch(authToken, owner, repo, baseUrl)
   }
 
   // Download the archive
   let archiveData = await retryHelper.execute(async () => {
     core.info('Downloading the archive')
-    return await downloadArchive(authToken, owner, repo, ref, commit, githubServerUrl)
+    return await downloadArchive(authToken, owner, repo, ref, commit, baseUrl)
   })
 
   // Write archive to disk
@@ -83,12 +83,12 @@ export async function getDefaultBranch(
   authToken: string,
   owner: string,
   repo: string,
-  githubServerUrl?: string
+  baseUrl?: string
 ): Promise<string> {
   return await retryHelper.execute(async () => {
     core.info('Retrieving the default branch name')
     const octokit = github.getOctokit(authToken, {
-      baseUrl: getServerApiUrl(githubServerUrl)
+      baseUrl: getServerApiUrl(baseUrl)
     })
     let result: string
     try {
@@ -128,10 +128,10 @@ async function downloadArchive(
   repo: string,
   ref: string,
   commit: string,
-  githubServerUrl?: string
+  baseUrl?: string
 ): Promise<Buffer> {
   const octokit = github.getOctokit(authToken, {
-    baseUrl: getServerApiUrl(githubServerUrl)
+    baseUrl: getServerApiUrl(baseUrl)
   })
   const download = IS_WINDOWS
     ? octokit.rest.repos.downloadZipballArchive

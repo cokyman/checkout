@@ -38,7 +38,6 @@ export interface IGitCommandManager {
       fetchDepth?: number
       fetchTags?: boolean
       showProgress?: boolean
-      githubServerUrl?: string
     }
   ): Promise<void>
   getDefaultBranch(repositoryUrl: string): Promise<string>
@@ -259,7 +258,6 @@ class GitCommandManager {
       fetchDepth?: number
       fetchTags?: boolean
       showProgress?: boolean
-      githubServerUrl?: string
     }
   ): Promise<void> {
     const args = ['-c', 'protocol.version=2', 'fetch']

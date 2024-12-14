@@ -1,27 +1,5 @@
 [![Build and Test](https://github.com/actions/checkout/actions/workflows/test.yml/badge.svg)](https://github.com/actions/checkout/actions/workflows/test.yml)
 
-# Repository Overview
-
-This repository is a GitHub Action for checking out a Git repository at a particular version. It provides functionality to fetch and checkout a repository, handle authentication, and manage various Git operations.
-
-## Main Functionality
-
-The main functionality is defined in `action.yml`, which describes the inputs and outputs for the action, such as `repository`, `ref`, `token`, `ssh-key`, `persist-credentials`, `path`, `clean`, `fetch-depth`, `fetch-tags`, `lfs`, `submodules`, and more.
-
-## Main Files and Directories
-
-- `src/main.ts`: The main entry point for the action, handling the main logic for running the action and cleaning up after it.
-- `src/git-command-manager.ts`: Manages Git commands.
-- `src/git-auth-helper.ts`: Configures authentication for Git operations.
-- `src/git-source-provider.ts`: Handles the process of fetching and checking out the repository.
-- `src/input-helper.ts`: Parses and validates inputs.
-- `src/fs-helper.ts`: Provides file system operations.
-- `__test__`: Contains tests for the action (files are skipped, so content is not shown).
-- `CHANGELOG.md`: Provides a history of changes and updates to the action.
-- `README.md`: Contains detailed usage instructions, scenarios, and examples for using the action in GitHub workflows.
-- `.github/workflows`: Contains GitHub Actions workflows (files are skipped, so content is not shown).
-- `.eslintrc.json`, `.prettierrc.json`: Configuration files for various tools.
-
 # Checkout V4
 
 This action checks-out your repository under `$GITHUB_WORKSPACE`, so your workflow can access it.
