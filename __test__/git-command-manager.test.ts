@@ -376,3 +376,109 @@ describe('Test fetchDepth and fetchTags options', () => {
     )
   })
 })
+
+describe('Test asynchronous operations and retries', () => {
+  beforeEach(async () => {
+    jest.spyOn(fshelper, 'fileExistsSync').mockImplementation(jest.fn())
+    jest.spyOn(fshelper, 'directoryExistsSync').mockImplementation(jest.fn())
+    mockExec.mockImplementation((path, args, options) => {
+      console.log(args, options.listeners.stdout)
+
+      if (args.includes('version')) {
+        options.listeners.stdout(Buffer.from('2.18'))
+      }
+
+      return 0
+    })
+  })
+
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
+  it('should execute multiple independent Git commands concurrently', async () => {
+    jest.spyOn(exec, 'exec').mockImplementation(mockExec)
+    const workingDirectory = 'test'
+    const lfs = false
+    const doSparseCheckout = false
+    git = await commandManager.createCommandManager(
+      workingDirectory,
+      lfs,
+      doSparseCheckout
+    )
+
+    const refSpec1 = ['refspec1']
+    const refSpec2 = ['refspec2']
+    const options = {
+      filter: 'filterValue',
+      fetchDepth: 1,
+      fetchTags: true
+    }
+
+    await Promise.all([git.fetch(refSpec1, options), git.fetch(refSpec2, options)])
+
+    expect(mockExec).toHaveBeenCalledWith(
+      expect.any(String),
+      [
+        '-c',
+        'protocol.version=2',
+        'fetch',
+        '--prune',
+        '--no-recurse-submodules',
+        '--filter=filterValue',
+        '--depth=1',
+        'origin',
+        'refspec1'
+      ],
+      expect.any(Object)
+    )
+
+    expect(mockExec).toHaveBeenCalledWith(
+      expect.any(String),
+      [
+        '-c',
+        'protocol.version=2',
+        'fetch',
+        '--prune',
+        '--no-recurse-submodules',
+        '--filter=filterValue',
+        '--depth=1',
+        'origin',
+        'refspec2'
+      ],
+      expect.any(Object)
+    )
+  })
+
+  it('should use asynchronous retries for Git operations', async () => {
+    jest.spyOn(exec, 'exec').mockImplementation(mockExec)
+    const workingDirectory = 'test'
+    const lfs = false
+    const doSparseCheckout = false
+    git = await commandManager.createCommandManager(
+      workingDirectory,
+      lfs,
+      doSparseCheckout
+    )
+
+    const refSpec = ['refspec1']
+    const options = {
+      filter: 'filterValue',
+      fetchDepth: 1,
+      fetchTags: true
+    }
+
+    let attempts = 0
+    mockExec.mockImplementation((path, args, options) => {
+      attempts++
+      if (attempts < 3) {
+        throw new Error('some error')
+      }
+      return 0
+    })
+
+    await git.fetch(refSpec, options)
+
+    expect(attempts).toBe(3)
+  })
+})

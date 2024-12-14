@@ -57,7 +57,7 @@ export interface IGitSourceSettings {
   /**
    * Indicates whether to use the --progress option when fetching
    */
-  showProgress: boolean
+  showFetchProgress: boolean
 
   /**
    * Indicates whether to fetch LFS objects
