@@ -15,12 +15,23 @@ import {
 } from './git-command-manager'
 import {IGitSourceSettings} from './git-source-settings'
 
+const cache = new Map<string, any>()
+
 export async function getSource(settings: IGitSourceSettings): Promise<void> {
   // Repository URL
   core.info(
     `Syncing repository: ${settings.repositoryOwner}/${settings.repositoryName}`
   )
   const repositoryUrl = urlHelper.getFetchUrl(settings)
+
+  // Check cache
+  const cacheKey = `${settings.repositoryOwner}/${settings.repositoryName}@${settings.ref || settings.commit}`
+  if (cache.has(cacheKey)) {
+    core.info(`Using cached data for ${cacheKey}`)
+    const cachedData = cache.get(cacheKey)
+    await io.cp(cachedData, settings.repositoryPath, { recursive: true })
+    return
+  }
 
   // Remove conflicting file path
   if (fsHelper.fileExistsSync(settings.repositoryPath)) {
@@ -275,6 +286,11 @@ export async function getSource(settings: IGitSourceSettings): Promise<void> {
       settings.commit,
       settings.githubServerUrl
     )
+
+    // Cache the fetched data
+    core.info(`Caching data for ${cacheKey}`)
+    await io.cp(settings.repositoryPath, cacheKey, { recursive: true })
+    cache.set(cacheKey, cacheKey)
   } finally {
     // Remove auth
     if (authHelper) {
