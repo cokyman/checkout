@@ -701,6 +701,43 @@ describe('git-auth-helper tests', () => {
       }
     }
   })
+
+  // New test cases to cover the changes made in `src/git-auth-helper.ts`
+  const configureAuth_usesAsyncAwaitConsistently =
+    'configureAuth uses async/await consistently'
+  it(configureAuth_usesAsyncAwaitConsistently, async () => {
+    // Arrange
+    await setup(configureAuth_usesAsyncAwaitConsistently)
+    const authHelper = gitAuthHelper.createAuthHelper(git, settings)
+
+    // Act
+    await authHelper.configureAuth()
+
+    // Assert
+    const configContent = (
+      await fs.promises.readFile(localGitConfigPath)
+    ).toString()
+    expect(configContent).toContain('http.')
+  })
+
+  const removeAuth_consolidatesRemoveSshAndRemoveToken =
+    'removeAuth consolidates removeSsh and removeToken'
+  it(removeAuth_consolidatesRemoveSshAndRemoveToken, async () => {
+    // Arrange
+    await setup(removeAuth_consolidatesRemoveSshAndRemoveToken)
+    const authHelper = gitAuthHelper.createAuthHelper(git, settings)
+    await authHelper.configureAuth()
+
+    // Act
+    await authHelper.removeAuth()
+
+    // Assert
+    const gitConfigContent = (
+      await fs.promises.readFile(localGitConfigPath)
+    ).toString()
+    expect(gitConfigContent).not.toContain('core.sshCommand')
+    expect(gitConfigContent).not.toContain('http.')
+  })
 })
 
 async function setup(testName: string): Promise<void> {
